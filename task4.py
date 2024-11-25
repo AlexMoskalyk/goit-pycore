@@ -1,31 +1,47 @@
 import datetime
 
 def get_upcoming_birthdays(users):
-    today = datetime.datetime.today().date()
-    upcoming_birthdays = []
+    try:
+        today = datetime.datetime.today().date()
+        upcoming_birthdays = []
 
-    for user in users:
-        birthday = datetime.datetime.strptime(user["birthday"], "%Y.%m.%d").date()
-        birthday_this_year = datetime.date(today.year, birthday.month, birthday.day)
+        for user in users:
+            if not isinstance(user, dict) or "name" not in user or "birthday" not in user:
+                raise ValueError("Invalid user data")
 
-        if birthday_this_year < today:
-            birthday_this_year = datetime.date(today.year + 1, birthday.month, birthday.day)
+            try:
+                birthday = datetime.datetime.strptime(user["birthday"], "%Y.%m.%d").date()
+            except ValueError:
+                raise ValueError(f"Invalid birthday format for user {user['name']}")
 
-        time_to_birthday = (birthday_this_year - today).days
+            birthday_this_year = datetime.date(today.year, birthday.month, birthday.day)
 
-        if time_to_birthday <= 7:
-            congratulation_date = birthday_this_year
+            if birthday_this_year < today:
+                birthday_this_year = datetime.date(today.year + 1, birthday.month, birthday.day)
 
-            if congratulation_date.weekday() >= 5:
-                days_to_add = 7 - congratulation_date.weekday()
-                congratulation_date += datetime.timedelta(days=days_to_add)
+            time_to_birthday = (birthday_this_year - today).days
 
-            upcoming_birthdays.append({
-                "name": user["name"],
-                "congratulation_date": congratulation_date.strftime("%Y.%m.%d")
-            })
+            if time_to_birthday <= 7:
+                congratulation_date = birthday_this_year
 
-    return upcoming_birthdays
+                # Shift congratulation date to next Monday if birthday falls on a weekend
+                if congratulation_date.weekday() >= 5:
+                    days_to_add = 7 - congratulation_date.weekday()
+                    congratulation_date += datetime.timedelta(days=days_to_add)
+
+                upcoming_birthdays.append({
+                    "name": user["name"],
+                    "congratulation_date": congratulation_date.strftime("%Y.%m.%d")
+                })
+
+        return upcoming_birthdays
+
+    except ValueError as e:
+        print(f"Error: {e}")
+        return []
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return []
 
 
 users = [
