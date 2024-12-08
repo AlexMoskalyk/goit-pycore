@@ -55,7 +55,7 @@ def display_filtered_logs(logs: List[dict], level: str):
 def main():
     """Основна функція для запуску скрипта."""
     if len(sys.argv) < 2:
-        print("Використання: python main.py path/to/logfile.log [log_level]")
+        print("Використання: python code.py path/to/logs.log ")
         sys.exit(1)
 
     log_file = sys.argv[1]
